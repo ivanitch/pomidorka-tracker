@@ -1,6 +1,6 @@
 [project]
 name = "pomadoro-tracker"
-version = "1.0.0"
+version = "1.0.3"
 description = "Терминальный (TUI) Pomodoro-трекер на Python и Textual"
 readme = "README.md"
 authors = [

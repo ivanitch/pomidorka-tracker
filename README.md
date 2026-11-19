@@ -16,7 +16,7 @@
     - **Таймер** — управление сессией, выбор режима и сводка за текущий день.
     - **Сегодня** — разбивка завершённых блоков по режимам и таблица сессий дня.
     - **Весь лог** — суммарная статистика и полная история за всё время.
-- **Локальный JSON-лог:** все завершённые фазы (`work` / `break`) сохраняются в `stats.json` в корне проекта.
+- **Локальный JSON-лог:** все завершённые фазы (`work` / `break`) сохраняются в `stats.json` в директории `tmp/`.
 - **Нативные уведомления Linux:** десктопные оповещения через `notify-send` и звуковой сигнал через `paplay` (с фолбэком
   на системный бип).
 
@@ -46,11 +46,11 @@ cd pomadoro-tracker
 # Установка зависимостей
 uv sync
 
-# Запуск
-uv run pomo
+# Запуск трекера
+pomodoro
 
-# Или как модуль Python
-uv run python -m src.pomodoro
+# Запуск из директории проекта
+uv run pomo
 ```
 
 ---
@@ -95,7 +95,6 @@ chmod +x ~/.local/bin/pomodoro
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 curl -s "[https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg](https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg)" \
   -o ~/.local/share/icons/hicolor/scalable/apps/pomodoro-tracker.svg
-
 ```
 
 ### 3. Ярлык в меню приложений
@@ -126,6 +125,17 @@ cp ~/.local/share/applications/pomodoro.desktop ~/.config/autostart/pomodoro.des
 
 ```
 
+5. ### Автоактивация окна (опционально, Linux / X11)
+
+Чтобы при завершении блока или отдыха окно терминала с трекером автоматически выводилось на передний план, установи
+`wmctrl`:
+
+```bash
+sudo apt install wmctrl
+```
+
+*(Без `wmctrl` трекер продолжит работать, но окно придётся переключать вручную.)*
+
 ## Структура проекта и тесты
 
 ```text
@@ -151,3 +161,18 @@ uv run pytest
 
 > Файл `stats.json` создаётся автоматически при первом запуске в директории `tmp/` и хранится локально.
 
+---
+
+## UI
+
+Трекер:
+
+![Трекер](/docs/img/main.svg)
+
+Статистика / Журнал событий (Сегодня / За все время):
+
+![Статистика / Журнал событий](/docs/img/stats.svg)
+
+Функции:
+
+![Кастомизация](/docs/img/funcs.png)

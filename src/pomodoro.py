@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from datetime import datetime
@@ -22,8 +23,7 @@ from textual.widgets import (
 
 from src.storage import MODES, PeriodStats, SessionRecord, StatsStore
 
-
-def notify_user(title: str, message: str) -> None:
+def notify_user(self, title: str, message: str) -> None:
     """Отправляет десктопное уведомление и проигрывает звук в LMDE/Linux."""
     if shutil.which("notify-send"):
         subprocess.Popen(
@@ -41,6 +41,8 @@ def notify_user(title: str, message: str) -> None:
         )
     else:
         print("\a", end="", flush=True)
+
+    self.focus_terminal_window()
 
 
 class PomodoroApp(App[None]):
@@ -207,7 +209,7 @@ class PomodoroApp(App[None]):
 
                     with Horizontal(classes="row"):
                         yield Button("Пропустить фазу", id="skip", classes="util-btn")
-                        yield Button("Тест сигнала", id="test_notify", classes="util-btn")
+                        yield Button("Тест сигнала 🔔", id="test_notify", classes="util-btn")
 
             with TabPane("Сегодня", id="tab-today"):
                 yield Label("", id="today-breakdown", classes="stats-box")
@@ -246,12 +248,13 @@ class PomodoroApp(App[None]):
     def _finish_phase(self, *, completed: bool) -> None:
         self.is_running = False
         mode = MODES[self.mode_key]
+        mode_info = mode.short
 
         if not self.is_break:
             if completed:
                 self.store.record_session(self.mode_key, "work", mode.work_min)
                 notify_user(
-                    "🍅 Блок завершён!",
+                    f"🍅 Блок {mode_info} завершён!",
                     f"{mode.title} — пора отдохнуть {mode.break_min} мин.",
                 )
             self.is_break = True
@@ -260,7 +263,7 @@ class PomodoroApp(App[None]):
             if completed:
                 self.store.record_session(self.mode_key, "break", mode.break_min)
                 notify_user(
-                    "🍅 Отдых окончен!",
+                    "🍅 Отдых  окончен!",
                     f"Возвращаемся к задаче: {mode.title}.",
                 )
             self.is_break = False
@@ -309,10 +312,10 @@ class PomodoroApp(App[None]):
 
     @staticmethod
     def _fill_table(
-        table: DataTable[str],
-        sessions: list[SessionRecord],
-        *,
-        include_date: bool,
+            table: DataTable[str],
+            sessions: list[SessionRecord],
+            *,
+            include_date: bool,
     ) -> None:
         table.clear()
         for s in reversed(sessions):
@@ -379,7 +382,8 @@ class PomodoroApp(App[None]):
         self.seconds_left = MODES[key].work_min * 60
         self._sync_ui()
 
-    def action_test_notify(self) -> None:
+    @staticmethod
+    def action_test_notify() -> None:
         notify_user("🍅 Тест сигнала", "Уведомления и звук работают!")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -401,6 +405,27 @@ class PomodoroApp(App[None]):
             self.action_test_notify()
         elif btn_id and btn_id.startswith("mode_"):
             self.action_set_mode(btn_id.removeprefix("mode_"))
+
+    @staticmethod
+    def focus_terminal_window() -> None:
+        """Выводит окно терминала с трекером на передний план (X11 / Cinnamon)."""
+        if not shutil.which("wmctrl"):
+            return
+
+        window_id = os.environ.get("WINDOWID")
+        if window_id:
+            subprocess.Popen(
+                ["wmctrl", "-i", "-a", window_id],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        else:
+            # Ищем окно по части заголовка, который выставляет Textual
+            subprocess.Popen(
+                ["wmctrl", "-a", "Pomodoro Tracker"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
 
 
 def main() -> None:
