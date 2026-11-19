@@ -73,7 +73,7 @@ uv run python -m src.pomodoro
 
 ---
 
-## Интеграция с Linux (LMDE / Cinnamon)
+## Интеграция с Linux (Debian / LMDE / Cinnamon)
 
 ### 1. Скрипт-обёртка `~/.local/bin/pomodoro`
 
@@ -81,49 +81,50 @@ uv run python -m src.pomodoro
 mkdir -p ~/.local/bin
 cat << 'EOF' > ~/.local/bin/pomodoro
 #!/usr/bin/env bash
-cd /путь/к/проекту && exec ~/.local/bin/uv run pomodoro
+cd /путь/к/проекту && exec ~/.local/bin/uv run pomo
 EOF
 chmod +x ~/.local/bin/pomodoro
+
 ```
 
 *(Убедись, что путь к `uv` совпадает с выводом команды `which uv`.)*
 
-### 2. Автозагрузка при входе в систему
+### 2. Иконка помидора 🍅
 
-Создай файл `~/.config/autostart/pomodoro.desktop`:
+```bash
+mkdir -p ~/.local/share/icons/hicolor/scalable/apps
+curl -s "[https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg](https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg)" \
+  -o ~/.local/share/icons/hicolor/scalable/apps/pomodoro-tracker.svg
 
-```ini
-[Desktop Entry]
-Type = Application
-Name = Pomodoro Tracker
-Comment = Terminal Pomodoro timer for Dev and Business
-Exec = x-terminal-emulator -e bash -lc "~/.local/bin/pomodoro"
-Terminal = false
-X-GNOME-Autostart-enabled = true
 ```
 
 ### 3. Ярлык в меню приложений
 
-Создай файл `~/.local/share/applications/pomodoro.desktop`:
-
-```ini
+```bash
+mkdir -p ~/.local/share/applications
+cat << EOF > ~/.local/share/applications/pomodoro.desktop
 [Desktop Entry]
-Type = Application
-Name = Pomodoro Tracker
-Comment = Terminal Pomodoro timer for Dev and Business
-Exec = x-terminal-emulator -e bash -lc "~/.local/bin/pomodoro"
-Icon = utilities-terminal
-Terminal = false
-Categories = Utility;
+Type=Application
+Name=Pomodoro Tracker
+Comment=Terminal Pomodoro timer for Dev and Business
+Exec=$HOME/.local/bin/pomodoro
+Icon=$HOME/.local/share/icons/hicolor/scalable/apps/pomodoro-tracker.svg
+Terminal=true
+Categories=Utility;
+Keywords=pomodoro;timer;tracker;focus;
+EOF
+chmod +x ~/.local/share/applications/pomodoro.desktop
+update-desktop-database ~/.local/share/applications
+
 ```
 
-Обнови кэш меню:
+### 4. Автозагрузка при входе в систему
 
 ```bash
-update-desktop-database ~/.local/share/applications
-```
+mkdir -p ~/.config/autostart
+cp ~/.local/share/applications/pomodoro.desktop ~/.config/autostart/pomodoro.desktop
 
----
+```
 
 ## Структура проекта и тесты
 

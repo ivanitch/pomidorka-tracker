@@ -6,7 +6,7 @@ from src.storage import StatsStore, MODES, DEFAULT_LOG_PATH, PROJECT_DIR
 
 def test_default_log_path_is_in_project_dir() -> None:
     assert PROJECT_DIR == Path(__file__).resolve().parent.parent
-    assert DEFAULT_LOG_PATH == PROJECT_DIR / "stats.json"
+    assert DEFAULT_LOG_PATH == PROJECT_DIR / "tmp/stats.json"
 
 
 def test_record_and_stats_by_day_and_all_time(tmp_path: Path) -> None:

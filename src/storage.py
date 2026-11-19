@@ -9,7 +9,7 @@ from typing import Literal
 Phase = Literal["work", "break"]
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_LOG_PATH = PROJECT_DIR / "stats.json"
+DEFAULT_LOG_PATH = PROJECT_DIR / "tmp/stats.json"
 
 
 @dataclass(frozen=True)
