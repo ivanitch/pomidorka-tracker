@@ -1,0 +1,9 @@
+# Python-generated files
+__pycache__/
+*.log
+
+# Virtual environments
+.venv
+
+# Журнал  за все время
+/tmp/stats.json
