@@ -40,8 +40,8 @@
 Требуется Python 3.15+ и [uv](https://docs.astral.sh/uv/).
 
 ```bash
-git clone https://github.com/ivanitch/pomadoro-tracker pomadoro-tracker
-cd pomadoro-tracker
+git clone https://github.com/ivanitch/pomidorka-tracker.git pomidorka-tracker.git
+cd pomidorka-tracker.git
 
 # Установка зависимостей
 uv sync

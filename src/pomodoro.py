@@ -23,11 +23,12 @@ from textual.widgets import (
 
 from src.storage import MODES, PeriodStats, SessionRecord, StatsStore
 
+
 def notify_user(self, title: str, message: str) -> None:
     """Отправляет десктопное уведомление и проигрывает звук в LMDE/Linux."""
     if shutil.which("notify-send"):
         subprocess.Popen(
-            ["notify-send", "-u", "normal", "-a", "Pomodoro", title, message],
+            ["notify-send", "-u", "normal", "-a", "Pomidorka", title, message],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -221,7 +222,7 @@ class PomodoroApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        self.title = "🍅 Pomodoro Tracker 🍅"
+        self.title = "🍅 Pomodorka Tracker 🍅"
         self.set_interval(1.0, self._tick)
 
         today_table = self.query_one("#today-table", DataTable)
@@ -422,7 +423,7 @@ class PomodoroApp(App[None]):
         else:
             # Ищем окно по части заголовка, который выставляет Textual
             subprocess.Popen(
-                ["wmctrl", "-a", "Pomodoro Tracker"],
+                ["wmctrl", "-a", "Pomidorka Tracker"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
