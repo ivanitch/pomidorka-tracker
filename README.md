@@ -1,10 +1,13 @@
-# 🍅 Pomodoro Tracker 🍅
+# 🍅 Pomidorka Tracker 🍅
+
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![pytest](https://img.shields.io/badge/pytest-%23ffffff.svg?style=flat&logo=pytest&logoColor=0A9EDC)
+![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)
+![Textual](https://img.shields.io/badge/Textual-8A2BE2?logo=textual&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-Debian%20%2F%20LMDE-A81D33?logo=linux&logoColor=white)
 
 Терминальный (TUI) Pomodoro-трекер на Python и [Textual](https://textual.textualize.io/), заточенный под разработку,
 бизнес-задачи, обучение и быстрые MVP-спринты.
-
-Классический цикл «25/5» часто обрывает состояние потока при работе со сложным кодом или аналитикой, поэтому в трекер
-зашиты 6 практических ритмов под разные типы нагрузки.
 
 ---
 
@@ -37,20 +40,21 @@
 
 ## Установка и запуск
 
-Требуется Python 3.15+ и [uv](https://docs.astral.sh/uv/).
-
 ```bash
-git clone https://github.com/ivanitch/pomidorka-tracker.git pomidorka-tracker.git
-cd pomidorka-tracker.git
+git clone https://github.com/ivanitch/pomidorka-tracker.git pomidorka-tracker
+cd pomidorka-tracker
 
-# Установка зависимостей
+# Быстрый запуск без установки проекта (через временный кэш uv)
+uv run --no-project --with textual python -m src.pomidorka
+
+# Или полноценная установка зависимостей из директории проекта
 uv sync
 
 # Запуск трекера
-pomodoro
+uv run pomidorka
 
-# Запуск из директории проекта
-uv run pomo
+# Запуск трекера одной командой
+pomidorka
 ```
 
 ---
@@ -75,16 +79,15 @@ uv run pomo
 
 ## Интеграция с Linux (Debian / LMDE / Cinnamon)
 
-### 1. Скрипт-обёртка `~/.local/bin/pomodoro`
+### 1. Скрипт-обёртка `~/.local/bin/pomidorka`
 
 ```bash
-mkdir -p ~/.local/bin
-cat << 'EOF' > ~/.local/bin/pomodoro
+UV_BIN="$(which uv)"
+cat << EOF > ~/.local/bin/pomidorka
 #!/usr/bin/env bash
-cd /путь/к/проекту && exec ~/.local/bin/uv run pomo
+cd <путь_к_проекту> && exec "$UV_BIN" run pomidorka
 EOF
-chmod +x ~/.local/bin/pomodoro
-
+chmod +x ~/.local/bin/pomidorka
 ```
 
 *(Убедись, что путь к `uv` совпадает с выводом команды `which uv`.)*
@@ -93,39 +96,37 @@ chmod +x ~/.local/bin/pomodoro
 
 ```bash
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
-curl -s "[https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg](https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg)" \
-  -o ~/.local/share/icons/hicolor/scalable/apps/pomodoro-tracker.svg
+curl -s https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f345.svg" \
+  -o ~/.local/share/icons/hicolor/scalable/apps/pomidorka-tracker.svg
 ```
 
 ### 3. Ярлык в меню приложений
 
 ```bash
 mkdir -p ~/.local/share/applications
-cat << EOF > ~/.local/share/applications/pomodoro.desktop
+cat << EOF > ~/.local/share/applications/pomidorka.desktop
 [Desktop Entry]
 Type=Application
-Name=Pomodoro Tracker
-Comment=Terminal Pomodoro timer for Dev and Business
-Exec=$HOME/.local/bin/pomodoro
-Icon=$HOME/.local/share/icons/hicolor/scalable/apps/pomodoro-tracker.svg
+Name=Pomidorka Tracker
+Comment=Terminal Pomidorka timer for Dev and Business
+Exec=$HOME/.local/bin/pomidorka
+Icon=$HOME/.local/share/icons/hicolor/scalable/apps/pomidorka-tracker.svg
 Terminal=true
 Categories=Utility;
-Keywords=pomodoro;timer;tracker;focus;
+Keywords=pomidorka;timer;tracker;focus;
 EOF
-chmod +x ~/.local/share/applications/pomodoro.desktop
+chmod +x ~/.local/share/applications/pomidorka.desktop
 update-desktop-database ~/.local/share/applications
-
 ```
 
 ### 4. Автозагрузка при входе в систему
 
 ```bash
 mkdir -p ~/.config/autostart
-cp ~/.local/share/applications/pomodoro.desktop ~/.config/autostart/pomodoro.desktop
-
+cp ~/.local/share/applications/pomidorka.desktop ~/.config/autostart/pomidorka.desktop
 ```
 
-5. ### Автоактивация окна (опционально, Linux / X11)
+### 5. Автоактивация окна (опционально, Linux / X11)
 
 Чтобы при завершении блока или отдыха окно терминала с трекером автоматически выводилось на передний план, установи
 `wmctrl`:
@@ -139,18 +140,22 @@ sudo apt install wmctrl
 ## Структура проекта и тесты
 
 ```text
+├── docs/                  # Скриншоты интерфейса для README
+│   ├── history.svg
+│   ├── main.svg
+│   ├── menu.png
+│   └── noty.png
 ├── src/
 │   ├── __init__.py
-│   ├── pomodoro.py        # TUI-приложение на Textual
+│   ├── pomidorka.py       # TUI-приложение на Textual
 │   └── storage.py         # Модели режимов и работа с JSON-логом
 ├── tests/
-│   └── pomodoro_test.py   # Юнит-тесты хранилища и статистики
+│   └── pomidorka_test.py  # Юнит-тесты хранилища и статистики
 ├── tmp/
-│   └── stats.json         # История фокусов
+│   └── stats.json         # История сессий (создаётся автоматически)
 ├── pyproject.toml
 ├── uv.lock
 └── README.md
-
 ```
 
 Запуск тестов:
@@ -167,12 +172,16 @@ uv run pytest
 
 Трекер:
 
-![Трекер](/docs/img/main.svg)
+![Трекер](/docs/main.svg)
 
-Статистика / Журнал событий (Сегодня / За все время):
+Статистика / Журнал событий:
 
-![Статистика / Журнал событий](/docs/img/stats.svg)
+![Статистика / Журнал событий](/docs/history.svg)
 
-Функции:
+Меню:
 
-![Кастомизация](/docs/img/funcs.png)
+![Кастомизация](/docs/menu.png)
+
+Уведомления на рабочем столе:
+
+![Уведомления на рабочем столе](/docs/noty.png)

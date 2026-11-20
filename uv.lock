@@ -95,8 +95,8 @@ wheels = [
 ]
 
 [[package]]
-name = "pomadoro-tracker"
-version = "1.0.3"
+name = "pomidorka-tracker"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "textual" },

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import sys
 import os
 import shutil
 import subprocess
@@ -24,8 +25,28 @@ from textual.widgets import (
 from src.storage import MODES, PeriodStats, SessionRecord, StatsStore
 
 
-def notify_user(self, title: str, message: str) -> None:
-    """Отправляет десктопное уведомление и проигрывает звук в LMDE/Linux."""
+def focus_terminal_window() -> None:
+    """Выводит окно терминала с трекером на передний план (X11 / Cinnamon)."""
+    if not shutil.which("wmctrl"):
+        return
+
+    window_id = os.environ.get("WINDOWID")
+    if window_id:
+        subprocess.Popen(
+            ["wmctrl", "-i", "-a", window_id],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    else:
+        subprocess.Popen(
+            ["wmctrl", "-a", "Pomidorka TUI"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+
+def notify_user(title: str, message: str) -> None:
+    """Отправляет десктопное уведомление, проигрывает звук и активирует окно."""
     if shutil.which("notify-send"):
         subprocess.Popen(
             ["notify-send", "-u", "normal", "-a", "Pomidorka", title, message],
@@ -43,10 +64,10 @@ def notify_user(self, title: str, message: str) -> None:
     else:
         print("\a", end="", flush=True)
 
-    self.focus_terminal_window()
+    focus_terminal_window()
 
 
-class PomodoroApp(App[None]):
+class PomidorkaApp(App[None]):
     CSS = """
     Screen {
         background: #1d2125;
@@ -222,7 +243,9 @@ class PomodoroApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        self.title = "🍅 Pomodorka Tracker 🍅"
+        self.title = "🍅 Pomidorka Tracker 🍅"
+        sys.stdout.write("\033]0;Pomidorka TUI\007")
+        sys.stdout.flush()
         self.set_interval(1.0, self._tick)
 
         today_table = self.query_one("#today-table", DataTable)
@@ -264,7 +287,7 @@ class PomodoroApp(App[None]):
             if completed:
                 self.store.record_session(self.mode_key, "break", mode.break_min)
                 notify_user(
-                    "🍅 Отдых  окончен!",
+                    f"☕ Отдых ({mode_info}) окончен!",
                     f"Возвращаемся к задаче: {mode.title}.",
                 )
             self.is_break = False
@@ -313,10 +336,10 @@ class PomodoroApp(App[None]):
 
     @staticmethod
     def _fill_table(
-            table: DataTable[str],
-            sessions: list[SessionRecord],
-            *,
-            include_date: bool,
+        table: DataTable[str],
+        sessions: list[SessionRecord],
+        *,
+        include_date: bool,
     ) -> None:
         table.clear()
         for s in reversed(sessions):
@@ -407,30 +430,9 @@ class PomodoroApp(App[None]):
         elif btn_id and btn_id.startswith("mode_"):
             self.action_set_mode(btn_id.removeprefix("mode_"))
 
-    @staticmethod
-    def focus_terminal_window() -> None:
-        """Выводит окно терминала с трекером на передний план (X11 / Cinnamon)."""
-        if not shutil.which("wmctrl"):
-            return
-
-        window_id = os.environ.get("WINDOWID")
-        if window_id:
-            subprocess.Popen(
-                ["wmctrl", "-i", "-a", window_id],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        else:
-            # Ищем окно по части заголовка, который выставляет Textual
-            subprocess.Popen(
-                ["wmctrl", "-a", "Pomidorka Tracker"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-
 
 def main() -> None:
-    PomodoroApp().run()
+    PomidorkaApp().run()
 
 
 if __name__ == "__main__":

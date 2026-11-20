@@ -41,3 +41,12 @@ def test_corrupted_json_does_not_crash(tmp_path: Path) -> None:
     store = StatsStore(log_file)
     assert store.load_sessions() == []
     assert store.get_stats("2026-11-18").total_work_blocks == 0
+
+def test_store_auto_creates_empty_file(tmp_path: Path) -> None:
+    log_file = tmp_path / "tmp" / "stats.json"
+    assert not log_file.exists()
+
+    store = StatsStore(log_file)
+
+    assert log_file.exists()
+    assert store.load_sessions() == []
